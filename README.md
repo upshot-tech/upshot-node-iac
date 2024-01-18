@@ -1,3 +1,8 @@
+# Table of Contents
+1. [Deploy Index provider](#Deploy-Index-provider)
+2. [Deploy appchain](#Deploy-appchain)
+
+
 # Deploy Index provider
 
 ## Deploy with docker-compose
@@ -58,8 +63,7 @@ curl --location 'http://localhost:6000/api/v1/functions/execute' --header 'Accep
 
 ```
 
-# Deploy app chain
-
+# Deploy appchain
 
 ## Dependencies
 - Create a set of keys and initialise genesis, see example in `appchain/init.sh`.
