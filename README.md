@@ -99,25 +99,4 @@ helm install \
 ```
 
 # Making requests to the node
-Once both nodes are up, a function can be tested by hitting:
-
-```
-curl --location 'https://localhost:6000/api/v1/functions/execute' --header 'Accept: application/json, text/plain, */*' --header 'Content-Type: application/json;charset=UTF-8' --data '{
-    "function_id": "bafybeifcwnj2hyxigjhtxoqqoei54favlgttmxc5fbuxuq5rrlw4g7kt6q",
-    "method": "upshot-function-example.wasm",
-    "config": {
-        "env_vars": [
-            {
-                "name": "BLS_REQUEST_PATH",
-                "value": "/api"
-            },
-            {
-                "name": "UPSHOT_ARG_PARAMS",
-                "value": "yuga"
-            }
-        ],
-        "number_of_nodes": 1
-    }
-}'
-
-```
+TBD
