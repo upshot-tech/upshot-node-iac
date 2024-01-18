@@ -1,0 +1,94 @@
+statefulsets:
+  - name: appchain
+    replicas: 1
+    persistence:
+      size: 200Gi
+      storageClassName: gp2
+      volumeMountPath: /data
+    initContainers:
+      - name: init-appchain
+        image: 696230526504.dkr.ecr.us-east-1.amazonaws.com/upshot-appchain:latest
+        env:
+          - name: APP_HOME
+            value: "/data"
+        workingDir: /data
+        command:
+          - /bin/sh
+          - -c
+          - |
+            INIT_FLAG="${APP_HOME}/initialized"
+            if [ ! -f $INIT_FLAG ]; then
+              echo "Initializing Appchain"
+              uptd --home=$APP_HOME config set client chain-id demo
+              uptd --home=$APP_HOME config set client keyring-backend test
+              uptd --home=$APP_HOME keys add alice --keyring-backend test > ${APP_HOME}/alice.keys 2>&1
+              uptd --home=$APP_HOME keys add bob --keyring-backend test > ${APP_HOME}/bob.keys 2>&1
+
+              uptd --home=$APP_HOME init test --chain-id demo --default-denom upt
+
+              echo "Update genesis"
+              uptd --home=$APP_HOME genesis add-genesis-account alice 10000000upt --keyring-backend test
+              uptd --home=$APP_HOME genesis add-genesis-account bob 1000upt --keyring-backend test
+
+              uptd --home=$APP_HOME genesis add-genesis-account upt1wg289gh4tv3en5g49pex433hwnsld6yzzhppgv 6969upt
+              uptd --home=$APP_HOME genesis add-genesis-account upt182rv3s5jvn5v7lxaz3elpwzgyl7zqvqe727ee5 1337upt
+              uptd --home=$APP_HOME genesis add-genesis-account upt1acgw83473tp35wnxutpvhwadzlgull0vvf7stj 4200upt
+
+              echo "Create default validator"
+              uptd --home=$APP_HOME genesis gentx alice 1000000upt --chain-id demo --keyring-backend test
+              uptd --home=$APP_HOME genesis collect-gentxs
+
+              date +%s > $INIT_FLAG
+            else
+              echo "Appchain is initialized."
+            fi
+
+        volumeMounts:
+          - name: appchain-data
+            mountPath: /data
+        securityContext:
+          runAsUser: 1001
+
+    containers:
+      - name: appchain
+        image:
+          repository: 696230526504.dkr.ecr.us-east-1.amazonaws.com/upshot-appchain
+          tag: latest
+        workingDir: /data
+        env:
+          - name: BLOCKLESS_API_URL
+            value: $_AI_PROVIDER_NODE_
+          - name: BLOCKLESS_FUNCTION_ID
+            value: $_AI_PROVIDER_NODE_FUNCTION_ID
+        command:
+          - uptd
+          - --home=/data
+          - start
+          - --rpc.laddr=tcp://0.0.0.0:26657
+        ports:
+          - name: p2p
+            type: ClusterIP
+            port: 26656
+            protocol: TCP
+          - name: rpc
+            type: ClusterIP
+            port: 26657
+            protocol: TCP
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 256m
+            memory: 512Mi
+
+global:
+  fullnameOverride: appchain
+  serviceAccount:
+    create: true
+    name: appchain
+  securityContext:
+    fsGroup: 1001
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroupChangePolicy: "Always"

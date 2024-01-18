@@ -7,7 +7,7 @@ statefulsets:
       volumeMountPath: /data
     initContainers:
       - name: init-keys
-        image: 696230526504.dkr.ecr.us-east-1.amazonaws.com/upshot-b7s-index-provider:dev-latest
+        image: 696230526504.dkr.ecr.us-east-1.amazonaws.com/upshot-b7s-index-provider:latest
         env:
           - name: APP_HOME
             value: "/data"
@@ -111,7 +111,7 @@ statefulsets:
       - name: worker
         image:
           repository: 696230526504.dkr.ecr.us-east-1.amazonaws.com/upshot-b7s-index-provider
-          tag: dev-latest
+          tag: latest
         env:
           - name: APP_HOME
             value: "/data"

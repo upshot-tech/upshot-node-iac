@@ -57,3 +57,63 @@ curl --location 'http://localhost:6000/api/v1/functions/execute' --header 'Accep
 }'
 
 ```
+
+# Deploy app chain
+
+
+## Dependencies
+- Create a set of keys and initialise genesis, see example in `appchain/init.sh`.
+- Provide a valid `$_AI_PROVIDER_NODE_` and `$_AI_PROVIDER_NODE_FUNCTION_ID` env var.
+
+## Deploy with docker-compose
+There is a `appchain/docker-compose.yml` provided that sets up one head node and one worker node.
+
+### Run
+Once this is set up, run `docker compose -f appchain/docker-compose.yml up`
+
+## Deploy in k8s with helm chart
+Upshot team uses a [universal-helm](https://upshot-tech.github.io/helm-charts/) chart to deploy applications into kubernetes clusters.
+There is a `index-provider/values.yaml` provided that sets up one head node and one worker node.
+
+### Dependencies
+ - You need to have configured `kubeconfig` file on the computer to connect to the cluster and deploy the node.
+
+### Deploy with the Helm Chart
+1. Add upshot Helm chart repo:
+```bash
+helm repo add upshot https://upshot-tech.github.io/helm-charts
+
+```
+
+2. Install helm chart with the given values file:
+
+```bash
+helm install \
+  index-provider \
+  upshot/universal-helm \
+  -f appchain/values.yaml
+```
+
+# Making requests to the node
+Once both nodes are up, a function can be tested by hitting:
+
+```
+curl --location 'https://localhost:6000/api/v1/functions/execute' --header 'Accept: application/json, text/plain, */*' --header 'Content-Type: application/json;charset=UTF-8' --data '{
+    "function_id": "bafybeifcwnj2hyxigjhtxoqqoei54favlgttmxc5fbuxuq5rrlw4g7kt6q",
+    "method": "upshot-function-example.wasm",
+    "config": {
+        "env_vars": [
+            {
+                "name": "BLS_REQUEST_PATH",
+                "value": "/api"
+            },
+            {
+                "name": "UPSHOT_ARG_PARAMS",
+                "value": "yuga"
+            }
+        ],
+        "number_of_nodes": 1
+    }
+}'
+
+```

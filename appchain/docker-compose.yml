@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  appchain:
+    image: 696230526504.dkr.ecr.us-east-1.amazonaws.com/upshot-appchain:latest
+    environment:
+      - BLOCKLESS_FUNCTION_ID=XXXXXXX
+      - BLOCKLESS_API_URL=YYYYYYYY
+    entrypoint:
+      - uptd
+      - --home=/data
+      - start
+      - --rpc.laddr=tcp://0.0.0.0:26657
+    volumes:
+      - type: bind
+        source: ./keys/worker1/
+        target: /var/keys
+        read_only: true

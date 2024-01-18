@@ -3,6 +3,7 @@ version: "3.8"
 services:
 
   worker1:
+    image: 696230526504.dkr.ecr.us-east-1.amazonaws.com/upshot-b7s-index-provider:latest
     environment:
       - LOG_LEVEL=debug
       - NODE_ROLE=worker
@@ -12,7 +13,6 @@ services:
       - WORKSPACE=workspace
       - RUNTIME=/app/runtime
       - BOOT_NODES=/ip4/172.19.0.100/tcp/9010/p2p/XXXXXXXXXXXXXXXXXXXXXXXX
-    build: .
     volumes:
       - type: bind
         source: ./keys/worker1/
@@ -29,6 +29,7 @@ services:
         ipv4_address: 172.19.0.5
 
   head1:
+    image: 696230526504.dkr.ecr.us-east-1.amazonaws.com/upshot-b7s-index-provider:latest
     environment:
       - LOG_LEVEL=debug
       - NODE_ROLE=head
@@ -38,8 +39,6 @@ services:
       - WORKSPACE=workspace
       - REST_API=6000
       - P2P_PORT=9010
-      # - BOOT_NODES=''
-    build: .
     ports:
       - "6000:6000"
     volumes:
