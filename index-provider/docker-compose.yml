@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+
+  worker1:
+    environment:
+      - LOG_LEVEL=debug
+      - NODE_ROLE=worker
+      - NODE_KEY_PATH=/var/keys/priv.bin
+      - PEER_DB=pdb
+      - FUNCTION_DB=fdb
+      - WORKSPACE=workspace
+      - RUNTIME=/app/runtime
+      - BOOT_NODES=/ip4/172.19.0.100/tcp/9010/p2p/XXXXXXXXXXXXXXXXXXXXXXXX
+    build: .
+    volumes:
+      - type: bind
+        source: ./keys/worker1/
+        target: /var/keys
+        read_only: true
+    env_file:
+      - .env
+    depends_on:
+      - head1
+    networks:
+      b7s-local:
+        aliases:
+          - worker1
+        ipv4_address: 172.19.0.5
+
+  head1:
+    environment:
+      - LOG_LEVEL=debug
+      - NODE_ROLE=head
+      - NODE_KEY_PATH=/var/keys/priv.bin
+      - PEER_DB=pdb
+      - FUNCTION_DB=fdb
+      - WORKSPACE=workspace
+      - REST_API=6000
+      - P2P_PORT=9010
+      # - BOOT_NODES=''
+    build: .
+    ports:
+      - "6000:6000"
+    volumes:
+      - type: bind
+        source: ./keys/head1/
+        target: /var/keys
+        read_only: true
+
+    networks:
+      b7s-local:
+        aliases:
+          - head1
+        ipv4_address: 172.19.0.100
+
+networks:
+  b7s-local:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/24
